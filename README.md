@@ -1,2 +1,3 @@
-# Serverless lambda functions
-GreenStem.uk
+# Serverless functions
+
+Node.js cloud-compute lambda-functions for GreenStem.uk
