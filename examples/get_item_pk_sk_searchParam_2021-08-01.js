@@ -32,11 +32,9 @@ exports.handler = async (event, context) => {
     body = JSON.stringify(body);
   }
 
-
   return {
     statusCode,
     body,
     headers,
   };
 };
-
