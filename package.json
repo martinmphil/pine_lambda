@@ -1,0 +1,25 @@
+{
+  "name": "pine_lambda",
+  "version": "1.0.0",
+  "description": "Cloud-compute node.js lambda-functions for GreenStem.uk",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/martinmphil/pine_lambda.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/martinmphil/pine_lambda/issues"
+  },
+  "homepage": "https://github.com/martinmphil/pine_lambda#readme",
+  "devDependencies": {
+    "eslint": "^8.12.0"
+  }
+}
