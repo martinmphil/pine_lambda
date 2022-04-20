@@ -114,10 +114,11 @@ const achievedPromise = (canId) => {
       return `<article class="achieved"><h1>Achieved</h1>${ul}</article><hr />`;
     })
     .catch((err) => {
-      console.warn(
-        ` Get achieved-exams-HTML for ${canId} failed:- ${JSON.stringify(err)} `
-      );
-      throw err;
+      const fault = ` Get achieved-exams-HTML for ${canId} failed:- ${JSON.stringify(
+        err
+      )} `;
+      console.warn(fault);
+      throw fault;
     });
 };
 
@@ -142,8 +143,9 @@ exports.handler = async (event) => {
 
     return { body: JSON.stringify(subjectHtmlListings) };
   } catch (err) {
-    return {
-      error: ` Lambda fn can-listings-pine failed:- ${JSON.stringify(err)} `,
-    };
+    const fault = ` Lambda fn can-listings-pine failed:- ${JSON.stringify(
+      err
+    )} `;
+    return { error: fault };
   }
 };
