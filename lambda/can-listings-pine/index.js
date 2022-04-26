@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const TableName = "pine";
 
-const examNamePromise = (examId) => {
+async function examName(examId) {
   return dynamo
     .get({
       TableName,
@@ -14,134 +14,128 @@ const examNamePromise = (examId) => {
     .promise()
     .then((x) => {
       return x?.Item?.name ?? examId;
-    })
-    .catch((err) => {
-      console.warn(
-        ` get exam-name for ${examId} failed:- ${JSON.stringify(err)} `
-      );
-      throw err;
     });
-};
+}
 
-const examArrPromise = (canId, entityType) => {
+async function getDisciplines(canId) {
   return dynamo
     .get({
       TableName,
       Key: {
         pk: canId,
-        sk: entityType,
+        sk: "disciplines",
       },
     })
     .promise()
     .then((x) => {
-      return x?.Item?.arr ?? [];
-    })
-    .catch((err) => {
-      console.warn(
-        ` get ${entityType} exams-arry for ${canId} failed:- ${JSON.stringify(
-          err
-        )} `
-      );
-      throw err;
+      return x?.Item?.disciplines ?? [];
     });
-};
+}
 
-const ongoingPromise = (canId) => {
-  return examArrPromise(canId, "ongoing")
-    .then(async (examIdArr) => {
-      return Promise.all(
-        examIdArr.map(async (examId) => {
-          const examName = await examNamePromise(examId);
-          return `<li><a href="/exams/${examId}">${examName}</a></li>`;
-        })
-      );
+async function getProgression(canId, examId) {
+  return dynamo
+    .get({
+      TableName,
+      Key: {
+        pk: canId,
+        sk: examId,
+      },
     })
-    .then((listingsArr) => {
-      if (Array.isArray(listingsArr) === false || listingsArr.length === 0) {
-        return "";
+    .promise()
+    .then((x) => {
+      return x?.Item?.qIndex ?? 0;
+    })
+    .then((qIndex) => {
+      let progression = "upcoming";
+      if (qIndex > 0) {
+        progression = "ongoing";
       }
-      const ul = `<ul>${listingsArr.join(" ")}</ul>`;
-      return `<article class="ongoing"><h1>Onging</h1>${ul}</article><hr />`;
-    })
-    .catch((err) => {
-      console.warn(
-        ` Get ongoing-exams-HTML for ${canId} failed:- ${JSON.stringify(err)} `
-      );
-      throw err;
+      if (qIndex < 0) {
+        progression = "achieved";
+      }
+      return progression;
     });
-};
+}
 
-const upcomingPromise = (canId) => {
-  return examArrPromise(canId, "upcoming")
-    .then(async (examIdArr) => {
-      return Promise.all(
-        examIdArr.map(async (examId) => {
-          const examName = await examNamePromise(examId);
-          return `<li><a href="/exams/${examId}">${examName}</a></li>`;
-        })
-      );
-    })
-    .then((listingsArr) => {
-      if (Array.isArray(listingsArr) === false || listingsArr.length === 0) {
-        return "";
-      }
-      const ul = `<ul>${listingsArr.join(" ")}</ul>`;
-      return `<article class="upcoming"><h1>Upcoming</h1>${ul}</article><hr />`;
-    })
-    .catch((err) => {
-      console.warn(
-        ` Get upcoming-exams-HTML for ${canId} failed:- ${JSON.stringify(err)} `
-      );
-      throw err;
-    });
-};
+async function getListings(canId) {
+  return getDisciplines(canId).then(async (examIdArr) => {
+    return Promise.all(
+      examIdArr.map(async (examId) => {
+        const name = await examName(examId);
+        const progression = await getProgression(canId, examId);
+        return { examId, name, progression };
+      })
+    );
+  });
+}
 
-const achievedPromise = (canId) => {
-  return examArrPromise(canId, "achieved")
-    .then(async (examIdArr) => {
-      return Promise.all(
-        examIdArr.map(async (examId) => {
-          const examName = await examNamePromise(examId);
-          return `<li><a href="/achieved/${examId}">${examName}</a></li>`;
-        })
-      );
-    })
-    .then((listingsArr) => {
-      if (Array.isArray(listingsArr) === false || listingsArr.length === 0) {
-        return "";
-      }
-      const ul = `<ul>${listingsArr.join(" ")}</ul>`;
-      return `<article class="achieved"><h1>Achieved</h1>${ul}</article><hr />`;
-    })
-    .catch((err) => {
-      const fault = ` Get achieved-exams-HTML for ${canId} failed:- ${JSON.stringify(
-        err
-      )} `;
-      console.warn(fault);
-      throw fault;
-    });
-};
+function validListingsArr(arr) {
+  if (
+    Array.isArray(arr) &&
+    arr.length &&
+    arr.every(
+      (el) =>
+        el.examId &&
+        el.examId.length &&
+        el.name &&
+        el.name.length &&
+        el.progression &&
+        (el.progression === "ongoing" ||
+          el.progression === "upcoming" ||
+          el.progression === "achieved")
+    )
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function formatOngoing(arr) {
+  const articleArr = arr.filter((x) => x.progression === "ongoing");
+  const liArr = articleArr.map((el) => {
+    return `<li><a href="/exams/${el.examId}">${el.name}</a></li>`;
+  });
+  const ul = `<ul>${liArr.join(" ")}</ul>`;
+  return `<article class="ongoing"><h1>Onging</h1>${ul}</article><hr />`;
+}
+
+function formatUpcoming(arr) {
+  const articleArr = arr.filter((x) => x.progression === "upcoming");
+  const liArr = articleArr.map((el) => {
+    return `<li><a href="/exams/${el.examId}">${el.name}</a></li>`;
+  });
+  const ul = `<ul>${liArr.join(" ")}</ul>`;
+  return `<article class="upcoming"><h1>Upcoming</h1>${ul}</article><hr />`;
+}
+
+function formatAchieved(arr) {
+  const articleArr = arr.filter((x) => x.progression === "achieved");
+  const liArr = articleArr.map((el) => {
+    return `<li><a href="/achieved/${el.examId}">${el.name}</a></li>`;
+  });
+  const ul = `<ul>${liArr.join(" ")}</ul>`;
+  return `<article class="achieved"><h1>Achieved</h1>${ul}</article><hr />`;
+}
 
 exports.handler = async (event) => {
   try {
     const username = event.requestContext.authorizer.jwt.claims.username;
     const canId = `candidate#${username}`;
 
-    const ongoing = await ongoingPromise(canId);
-    const upcoming = await upcomingPromise(canId);
-    const achieved = await achievedPromise(canId);
-
-    if (ongoing + upcoming + achieved === "") {
-      return {
-        body: JSON.stringify(
-          "<p> If you expected to find your enrolled subjects here, then please contact your Administrator. </p>"
-        ),
-      };
+    let disciplinesHtml = "";
+    let listings = [];
+    listings = await getListings(canId);
+    if (validListingsArr(listings)) {
+      const ongoing = formatOngoing(listings);
+      const upcoming = formatUpcoming(listings);
+      const achieved = formatAchieved(listings);
+      disciplinesHtml = `${ongoing} ${upcoming} ${achieved}`;
+    } else {
+      disciplinesHtml =
+        "<p> If you expected to find your enrolled subjects here, then please contact your Administrator. </p>";
     }
-
-    const subjectHtmlListings = `${ongoing} ${upcoming} ${achieved}`;
-
-    return { body: JSON.stringify(subjectHtmlListings) };
+    return { body: JSON.stringify(disciplinesHtml) };
   } catch (err) {
     const fault = ` Lambda fn can-listings-pine failed:- ${JSON.stringify(
       err
