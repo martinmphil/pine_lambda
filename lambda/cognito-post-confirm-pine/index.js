@@ -15,19 +15,19 @@ async function getStandardExams() {
     })
     .promise()
     .then((dbData) => {
-      return dbData?.Item?.arr;
+      return dbData?.Item?.disciplines;
     });
 }
 
-async function putUcoming(canId, standardExams) {
+async function putDisciplines(canId, standardExams) {
   return dynamo
     .put({
       TableName,
       Item: {
         pk: canId,
-        sk: "upcoming",
-        entityType: "upcoming",
-        arr: standardExams,
+        sk: "disciplines",
+        entityType: "disciplines",
+        disciplines: standardExams,
       },
       ConditionExpression:
         "attribute_not_exists(pk) AND attribute_not_exists(sk)",
@@ -55,7 +55,7 @@ async function instantiateUser(canId) {
   return getStandardExams()
     .then((standardExams) => {
       if (standardExams) {
-        return putUcoming(canId, standardExams);
+        return putDisciplines(canId, standardExams);
       } else {
         fault += " Standard-exams list missing. ";
         console.warn(fault);
@@ -63,7 +63,7 @@ async function instantiateUser(canId) {
     })
     .catch((err) => {
       const errStr = JSON.stringify(err);
-      fault += " Put upcoming standard-exams list failed. " + errStr;
+      fault += " Put disciplines for standard-exams failed. " + errStr;
       console.warn(fault);
     })
     .then(() => {
@@ -78,8 +78,8 @@ async function instantiateUser(canId) {
 
 exports.handler = async (event) => {
   try {
-    // Return event continues hosted-UI sign-up process.
-    // Cognito attribute "sub" (subject) uniquely identifies a user.
+    // Returning the event continues our hosted-UI sign-up process.
+    // Cognito-attribute "sub" (ie subject) uniquely identifies each user.
     const username = event?.request?.userAttributes?.sub;
     const canId = `candidate#${username}`;
 
