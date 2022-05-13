@@ -2,20 +2,16 @@ const { handler } = require("./index");
 
 jest.mock("aws-sdk");
 
+const dummyEvent = "dummyEvent";
+
 describe("handler fn", () => {
   it("exists", async () => {
     expect.assertions(1);
-    expect(handler()).toBeDefined();
+    expect(handler(dummyEvent)).toBeDefined();
   });
 
   it("resolves with body property", async () => {
     expect.assertions(1);
-    await expect(handler()).resolves.toHaveProperty("body");
-  });
-
-  it("returns string: oh", async () => {
-    expect.assertions(1);
-    const response = await handler();
-    expect(response.body).toMatch(/oh/i);
+    await expect(handler(dummyEvent)).resolves.toHaveProperty("body");
   });
 });
