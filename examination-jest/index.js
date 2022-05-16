@@ -1,6 +1,6 @@
-// const AWS = require("aws-sdk");
-const getDbItemMod = require("./getDbItemMod");
-const timestamp = new Date().toISOString();
+// // const AWS = require("aws-sdk");
+// const getDbItemMod = require("./getDbItemMod");
+// const timestamp = new Date().toISOString();
 let fault = "";
 // let qList = [];
 // let qIndex = 0;

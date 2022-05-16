@@ -1,10 +1,15 @@
-const { handler } = require("./index");
-
-jest.mock("aws-sdk");
+const { handler } = require("../index");
 
 const dummyEvent = "dummyEvent";
 
 describe("handler fn", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("exists", async () => {
     expect.assertions(1);
     expect(handler(dummyEvent)).toBeDefined();
