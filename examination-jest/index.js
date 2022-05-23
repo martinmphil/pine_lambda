@@ -1,9 +1,13 @@
-// // const AWS = require("aws-sdk");
-// const getDbItemMod = require("./getDbItemMod");
+const { getAssessmentData } = require("./getAssessmentDataMod");
+const { beginExam } = require("./beginExamMod");
+const { examInProgress } = require("./examInProgressMod");
+
 // const timestamp = new Date().toISOString();
 let fault = "";
 // let qList = [];
 // let qIndex = 0;
+let body = "";
+const canAnswer = "";
 
 exports.handler = async (event) => {
   try {
@@ -11,15 +15,18 @@ exports.handler = async (event) => {
     // const examCode = event.pathParameters.idNbr;
     const examCode = "1";
     const username = "dummy_user";
-    // to remove
-    console.log(JSON.stringify(event) + " " + username);
-
+    //
     const canId = `candidate#${username}`;
     const examId = `exam#${examCode}`;
 
-    const nextQHtml = `user is ${canId} and exam is ${examId}. `;
+    const assessmentData = await getAssessmentData(canId, examId);
 
-    return { body: JSON.stringify(nextQHtml) };
+    if (assessmentData) {
+      body = await examInProgress(canId, examId, canAnswer);
+    } else {
+      body = await beginExam(canId, examId);
+    }
+    return { body };
   } catch (err) {
     fault += ` Lambda fn examination-pine failed:- ${JSON.stringify(err)} `;
     return { error: fault };
