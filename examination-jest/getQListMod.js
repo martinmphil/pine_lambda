@@ -1,19 +1,13 @@
 const { getDbItem } = require("./getDbItemMod");
-
-const validStr = (x) => typeof x === "string" && x.length > 0;
-const checkProps = (y) => validStr(y.pKey) && validStr(y.sKey);
-const validQList = (z) => z.every(checkProps);
+const { validateQList } = require("./validateQListMod");
 
 async function getQList(examId) {
   const qList = await getDbItem(examId, examId).then((Item) => {
     return Item?.qList;
   });
-  if (validQList(qList)) {
+  if (validateQList(qList)) {
     return qList;
-  } else throw ` Invalid question-list for exam ${examId}. `;
+  } else throw ` Invalid question-list from getQListMod for exam ${examId}. `;
 }
 
 exports.getQList = getQList;
-
-// for unit test
-exports.validQList = validQList;
