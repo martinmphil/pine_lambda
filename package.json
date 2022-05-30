@@ -7,19 +7,21 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll --verbose"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/martinmphil/pine_lambda.git"
   },
-  "author": "",
+  "author": "martinmphil@gmail.com",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/martinmphil/pine_lambda/issues"
   },
   "homepage": "https://github.com/martinmphil/pine_lambda#readme",
   "devDependencies": {
-    "eslint": "^8.12.0"
+    "@types/jest": "^27.5.0",
+    "eslint": "^8.15.0",
+    "jest": "^28.1.0"
   }
 }
