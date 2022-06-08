@@ -31,7 +31,7 @@ exports.handler = async (event) => {
 
     const assessmentData = await getAssessmentData(canId, examId);
 
-    if (assessmentData) {
+    if (assessmentData && Object.keys(assessmentData).length > 0) {
       body = await examInProgress(canId, examId, assessmentData, canAnswer);
     } else {
       body = await beginExam(canId, examId);
