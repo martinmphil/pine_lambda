@@ -136,10 +136,8 @@ exports.handler = async (event) => {
         "<p> If you expected to find your enrolled subjects here, then please contact your Administrator. </p>";
     }
     return { body: JSON.stringify(disciplinesHtml) };
-  } catch (err) {
-    const fault = ` Lambda fn can-listings-pine failed:- ${JSON.stringify(
-      err
-    )} `;
+  } catch (error) {
+    const fault = ` Lambda fn can-listings-pine failed:- ${error.toString()} `;
     return { error: fault };
   }
 };

@@ -37,8 +37,8 @@ exports.handler = async (event) => {
       body = await beginExam(canId, examId);
     }
     return { body: JSON.stringify(body) };
-  } catch (err) {
-    fault += ` Lambda fn examination-pine failed:- ${JSON.stringify(err)} `;
+  } catch (error) {
+    fault += ` Lambda fn examination-pine failed:- ${error.toString()} `;
     return { error: fault };
   }
 };

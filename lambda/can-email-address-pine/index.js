@@ -18,8 +18,8 @@ const emailPromise = (AccessToken) => {
         throw " Cognito user absent. ";
       }
     })
-    .catch((err) => {
-      const fault = ` Get cognito user failed:- ${JSON.stringify(err)} `;
+    .catch((error) => {
+      const fault = ` Get cognito user failed:- ${error.toString()} `;
       console.warn(fault);
       throw fault;
     });
@@ -36,10 +36,8 @@ exports.handler = async function (event) {
       throw " Failed to get-email-address because access-token missing. ";
     }
     return { body: JSON.stringify(email) };
-  } catch (err) {
-    const fault = ` Lambda can-email-address-pine failed:- ${JSON.stringify(
-      err
-    )} `;
+  } catch (error) {
+    const fault = ` Lambda can-email-address-pine failed:- ${error.toString()} `;
     console.warn(fault);
     return {
       error: fault,

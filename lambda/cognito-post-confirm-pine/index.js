@@ -61,17 +61,15 @@ async function instantiateUser(canId) {
         console.warn(fault);
       }
     })
-    .catch((err) => {
-      const errStr = JSON.stringify(err);
-      fault += " Put disciplines for standard-exams failed. " + errStr;
+    .catch((error) => {
+      fault += ` Put disciplines for standard-exams failed:- ${error.toString()} `;
       console.warn(fault);
     })
     .then(() => {
       return putCandidateData(canId);
     })
     .catch((err) => {
-      const errStr = JSON.stringify(err);
-      fault += " Put new-user-data failed. " + errStr;
+      fault += ` Put new-user-data failed:- ${error.toString()} `;
       console.warn(fault);
     });
 }
@@ -88,8 +86,8 @@ exports.handler = async (event) => {
     }
 
     return event;
-  } catch (err) {
-    fault += ` Lambda cognito-post-confirm-pine failed:- ${err}. `;
+  } catch (error) {
+    fault += ` Lambda cognito-post-confirm-pine failed:- ${error.toString()}. `;
     console.warn({ error: fault });
     return event;
   }
