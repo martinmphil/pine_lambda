@@ -28,8 +28,8 @@ exports.handler = async (event) => {
     const sk = "ongoing";
     const dbData = await dbGet(pk, sk);
     return { body: JSON.stringify(dbData) };
-  } catch (err) {
-    const fault = ` Lambda my_fn_name failed:- ${JSON.stringify(err)} `;
+  } catch (error) {
+    const fault = ` Lambda my_fn_name failed:- ${error.toString()} `;
     console.warn(fault);
     return {
       error: fault,
