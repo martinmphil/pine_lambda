@@ -3,7 +3,6 @@ const { beginExam } = require("./beginExamMod");
 const { examInProgress } = require("./examInProgressMod");
 
 let body = "";
-const canAnswer = "";
 let fault = "";
 
 function validString(x) {
@@ -16,9 +15,11 @@ exports.handler = async (event) => {
   try {
     const username = event.requestContext.authorizer.jwt.claims.username;
     const examCode = event.pathParameters.idNbr;
+    const candidateAnswer = event.body;
+
     // const examCode = "1";
     // const username = "dummy_user";
-    //
+
     if (!validString(examCode)) {
       throw ` exam-code missing `;
     }
@@ -32,7 +33,12 @@ exports.handler = async (event) => {
     const assessmentData = await getAssessmentData(canId, examId);
 
     if (assessmentData && Object.keys(assessmentData).length > 0) {
-      body = await examInProgress(canId, examId, assessmentData, canAnswer);
+      body = await examInProgress(
+        canId,
+        examId,
+        assessmentData,
+        candidateAnswer
+      );
     } else {
       body = await beginExam(canId, examId);
     }
