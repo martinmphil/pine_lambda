@@ -8,9 +8,14 @@ const getFn = jest
   .fn()
   .mockImplementation(() => ({ promise: awsSdkPromiseResponse }));
 
+const updateFn = jest
+  .fn()
+  .mockImplementation(() => ({ promise: awsSdkPromiseResponse }));
+
 class DocumentClient {
   put = putFn;
   get = getFn;
+  update = updateFn;
 }
 
 const DynamoDB = {
