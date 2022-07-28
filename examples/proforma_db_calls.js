@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 const dynamo = new AWS.DynamoDB.DocumentClient();
 const TableName = "pine";
 
-async function dbGet(pk, sk) {
+async function getDbItem(pk, sk) {
   return dynamo
     .get({
       TableName,
@@ -13,9 +13,9 @@ async function dbGet(pk, sk) {
     })
     .promise()
     .then((dbItem) => {
-      const result = dbItem?.Item?.obj;
+      const result = dbItem?.Item;
       if (result === undefined || null) {
-        throw ` DynamoDB get (${pk}, ${sk}) failed. `;
+        throw ` DynamoDB get (${pk}, ${sk}) failed for ${result}. `;
       }
       return result;
     });
@@ -26,8 +26,8 @@ exports.handler = async (event) => {
     const username = event.requestContext.authorizer.jwt.claims.username;
     const pk = `candidate#${username}`;
     const sk = "ongoing";
-    const dbData = await dbGet(pk, sk);
-    return { body: JSON.stringify(dbData) };
+    const body = await getDbItem(pk, sk);
+    return { body };
   } catch (error) {
     const fault = ` Lambda my_fn_name failed:- ${error.toString()} `;
     console.warn(fault);
