@@ -54,12 +54,12 @@ const bad_list004 = [
   },
 ];
 
-describe("validQListMod", () => {
+describe("valid-question-list module", () => {
   it("fn exists", () => {
     expect(validQList(good_list)).toBeDefined();
   });
 
-  it("valids only good_input", () => {
+  it("validates only good_input", () => {
     expect.assertions(5);
     expect(validQList(good_list)).toBe(true);
     expect(validQList(bad_list001)).toBe(false);

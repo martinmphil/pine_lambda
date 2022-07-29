@@ -12,8 +12,6 @@ exports.handler = async (event) => {
     })
     .promise();
 
-  console.log(result);
-
   const response = {
     statusCode: 200,
     body: JSON.stringify(result.Items[0].markup),

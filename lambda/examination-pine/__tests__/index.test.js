@@ -14,7 +14,7 @@ beginExam.mockReturnValue(Promise.resolve("<p>beginning</p>"));
 
 const dummyEvent = {
   body: "a1",
-  pathParameters: { idNbr: "1" },
+  pathParameters: { examId: "exam#1" },
   requestContext: {
     authorizer: {
       jwt: {
