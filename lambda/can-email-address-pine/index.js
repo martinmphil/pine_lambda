@@ -12,30 +12,25 @@ const emailPromise = (AccessToken) => {
         (x) => x.Name === "email"
       )?.Value;
 
-      if (typeof email === "string" && email.length > 0) {
+      if (typeof email === "string" && email.length > 1) {
         return email;
-      } else {
-        throw " Cognito user absent. ";
       }
-    })
-    .catch((error) => {
-      const fault = ` Get cognito user failed:- ${error.toString()} `;
-      console.warn(fault);
-      throw fault;
+
+      throw " Cognito user absent. ";
     });
 };
 
 exports.handler = async function (event) {
   try {
     const AccessToken = event?.headers?.authorization;
-    let email = "";
+    let body = "";
 
     if (typeof AccessToken === "string" && AccessToken.length > 0) {
-      email = await emailPromise(AccessToken);
-    } else {
-      throw " Failed to get-email-address because access-token missing. ";
+      body = await emailPromise(AccessToken);
+      return { body };
     }
-    return { body: JSON.stringify(email) };
+
+    throw " Access-token missing from get-email-address. ";
   } catch (error) {
     const fault = ` Lambda can-email-address-pine failed:- ${error.toString()} `;
     console.warn(fault);
