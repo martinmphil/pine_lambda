@@ -91,31 +91,47 @@ function validListingsArr(arr) {
   }
 }
 
+function listingHtml(examId, examName) {
+  return `<button type="button" class="discipline" id="${examId}">${examName}</button>`;
+}
+
 function formatOngoing(arr) {
   const articleArr = arr.filter((x) => x.progression === "ongoing");
-  const liArr = articleArr.map((el) => {
-    return `<li><a href="/exams/${el.examId}">${el.name}</a></li>`;
+  if (articleArr.length === 0) {
+    return "";
+  }
+  const listingsArr = articleArr.map((el) => {
+    return listingHtml(el.examId, el.name);
   });
-  const ul = `<ul>${liArr.join(" ")}</ul>`;
-  return `<article class="ongoing"><h1>Onging</h1>${ul}</article><hr />`;
+  return `<article class="ongoing"><h1>Onging</h1>${listingsArr.join(
+    " "
+  )}</article><hr />`;
 }
 
 function formatUpcoming(arr) {
   const articleArr = arr.filter((x) => x.progression === "upcoming");
-  const liArr = articleArr.map((el) => {
-    return `<li><a href="/exams/${el.examId}">${el.name}</a></li>`;
+  if (articleArr.length === 0) {
+    return "";
+  }
+  const listingsArr = articleArr.map((el) => {
+    return listingHtml(el.examId, el.name);
   });
-  const ul = `<ul>${liArr.join(" ")}</ul>`;
-  return `<article class="upcoming"><h1>Upcoming</h1>${ul}</article><hr />`;
+  return `<article class="upcoming"><h1>Upcoming</h1>${listingsArr.join(
+    " "
+  )}</article><hr />`;
 }
 
 function formatAchieved(arr) {
   const articleArr = arr.filter((x) => x.progression === "achieved");
-  const liArr = articleArr.map((el) => {
-    return `<li><a href="/achieved/${el.examId}">${el.name}</a></li>`;
+  if (articleArr.length === 0) {
+    return "";
+  }
+  const listingsArr = articleArr.map((el) => {
+    return listingHtml(el.examId, el.name);
   });
-  const ul = `<ul>${liArr.join(" ")}</ul>`;
-  return `<article class="achieved"><h1>Achieved</h1>${ul}</article><hr />`;
+  return `<article class="achieved"><h1>Achieved</h1>${listingsArr.join(
+    " "
+  )}</article><hr />`;
 }
 
 exports.handler = async (event) => {
@@ -123,19 +139,22 @@ exports.handler = async (event) => {
     const username = event.requestContext.authorizer.jwt.claims.username;
     const canId = `candidate#${username}`;
 
-    let disciplinesHtml = "";
+    let body = "";
     let listings = [];
     listings = await getListings(canId);
+
     if (validListingsArr(listings)) {
+      const instruct = "<p>Please pick your subject</p>";
       const ongoing = formatOngoing(listings);
       const upcoming = formatUpcoming(listings);
       const achieved = formatAchieved(listings);
-      disciplinesHtml = `${ongoing} ${upcoming} ${achieved}`;
-    } else {
-      disciplinesHtml =
-        "<p> If you expected to find your enrolled subjects here, then please contact your Administrator. </p>";
+      body = `${instruct} ${ongoing} ${upcoming} ${achieved}`;
+      return { body };
     }
-    return { body: JSON.stringify(disciplinesHtml) };
+
+    body =
+      "<p> If you expected to find your enrolled subjects here, then please contact your Administrator. </p>";
+    return { body };
   } catch (error) {
     const fault = ` Lambda fn can-listings-pine failed:- ${error.toString()} `;
     return { error: fault };
