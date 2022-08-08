@@ -5,6 +5,9 @@ let canId = "candidate#abc";
 let examId = "exam#1";
 let canAnswer = "a1";
 
+jest.mock("../markExamMod");
+const markExamMod = require("../markExamMod");
+
 jest.mock("../getQTextMod");
 const getQTextMod = require("../getQTextMod");
 
@@ -23,17 +26,6 @@ describe("exam-in-progress module", () => {
     expect(
       examInProgress(canId, examId, dummyAssessmentData, canAnswer)
     ).toBeDefined();
-  });
-  it("returns achieved-exam-link for question-index of minus one", () => {
-    expect.assertions(2);
-    const finishedExamData = JSON.parse(JSON.stringify(dummyAssessmentData));
-    finishedExamData.qIndex = -1;
-    expect(examInProgress(canId, examId, finishedExamData)).toBeDefined();
-    examInProgress(canId, examId, finishedExamData, canAnswer).then(
-      (result) => {
-        expect(result).toContain('<a href="/can/achieved/1">');
-      }
-    );
   });
   it("throws a meaningful error with missing assessment-data", () => {
     expect.assertions(3);
@@ -125,20 +117,30 @@ describe("exam-in-progress module", () => {
     const lastQExamData = JSON.parse(JSON.stringify(dummyAssessmentData));
     lastQExamData.qIndex = 3;
     examInProgress(canId, examId, lastQExamData, canAnswer).then((result) => {
-      console.log(result);
       expect(result).toBeDefined();
       expect(spy2).toBeCalled();
       expect(spy2).toHaveBeenCalledTimes(1);
       expect(spy2).toBeCalledWith(canId, examId, -1);
     });
   });
-  it("returns achieved-exam-link after last question", () => {
+  it("returns end_of_exam standard-fixed-id after last question", () => {
     expect.assertions(1);
     const lastQExamData = JSON.parse(JSON.stringify(dummyAssessmentData));
     lastQExamData.qIndex = 3;
     examInProgress(canId, examId, lastQExamData, canAnswer).then((result) => {
-      expect(result).toContain('<a href="/can/achieved/1">');
+      expect(result).toContain(
+        "end_of_exam-standard_fixed_id_ne5gei8phi0al0oM"
+      );
     });
   });
-  //
+  it("calls mark-exam for question-index of minus one ie completed exam", () => {
+    expect.assertions(2);
+    const spy3 = jest.spyOn(markExamMod, "markExam");
+    const finishedExamData = JSON.parse(JSON.stringify(dummyAssessmentData));
+    finishedExamData.qIndex = -1;
+    examInProgress(canId, examId, finishedExamData).then((r) => {
+      expect(spy3).toHaveBeenCalled();
+      expect(spy3).toHaveBeenCalledTimes(1);
+    });
+  });
 });
